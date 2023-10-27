@@ -1,4 +1,7 @@
 //// ConnectLineConnector.common
+/// -----------------------------------------------
+/// LAST UPDATE -> 2023-10-26 18:22 - galex
+/// -----------------------------------------------
 function initializeResponse(hasDataList) {
     var response = {};
     response.success = true;
@@ -59,4 +62,14 @@ function convertKeysToLowerCase(obj) {
     vjsonString = vjsonString.replace(/"([^"]+)":/g, function ($0, $1) { return ('"' + $1.toLowerCase() + '":'); });
 
     return JSON.parse(vjsonString);
+}
+
+
+function formatDateTime(dt) {
+    return "'" + dt.replace(new RegExp(":", 'g'), "' + CHAR(58) + '") + "'";
+}
+function seriralizePrices(value) {
+    returnValue = JSON.stringify(value).replace(".", ",");
+    // returnValue = JSON.stringify(value);
+    return returnValue.replace(/"/g, "");
 }
