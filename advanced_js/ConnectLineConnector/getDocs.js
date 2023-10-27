@@ -1,4 +1,4 @@
-//// ConnectLineB2BConnector.getDocs
+//// ConnectLineConnector.getDocs
 /// -----------------------------------------------
 /// LAST UPDATE -> 2023-09-26 16:57 - galex
 /// -----------------------------------------------
@@ -327,120 +327,172 @@ function getItemMtrl(sku) {
     return false;
 }
 
-
-
-function getOrderBilingInfo(webid) {
-    if (webid == 0 || webid == null) return false;
+function checkSupplierName(name) {
     // Initialize response array
     var response = initializeResponse(true);
+    dsSql = " SELECT top 1 ISNULL(UTBL03,0) AS ID FROM UTBL03 WHERE NAME = '" + name + "'" +
+        " AND COMPANY = " + X.SYS.COMPANY + " AND SODTYPE = 51";
 
-    // Query Filters
-    dsSqlWhere =
-        " WHERE F.FINCODE = '" + webid + "'  ";
-    dsSql = "SELECT C.TRDR as id, C.CODE as code, C.NAME as name, C.ADDRESS as address, C.CITY as city, C.ZIP as zip, C.district as district, C.EMAIL as email, C.PHONE01 as phone1, C.COUNTRY as country, C.AFM as afm, C.IRSDATA as doy " +
-        "from TRDR C INNER JOIN FINDOC F ON (F.TRDR = C.TRDR)";
 
-    dsSql = dsSql + dsSqlWhere;
     dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
-    //return dsSql;
-    //response.data = JSON.parse(dsData.JSON);
+
+    response.totalcount = dsData.RECORDCOUNT;
     dsData.FIRST;
-    while (!dsData.EOF()) {
-        if (dsData.NAME == "") {
-            response.success = false;
-            response.error = "No Data";
-        } else {
-            response.success = true;
-            response.data = JSON.parse(dsData.JSON);
-        }
-        return response;
-    }
-    return false;
+    rows = [];
 
-}
-
-function getOrderShipinfo(webid) {
-    if (webid == 0 || webid == null) return false;
-    // Initialize response array
-    var response = initializeResponse(true);
-
-    // Query Filters
-    dsSqlWhere =
-        " WHERE F.FINCODE = '" + webid + "'  ";
-    dsSql = "SELECT  F.CCCParaliptisName as name, M.SHIPPINGADDR as address, M.SHPCITY as city, M.SHPZIP as zip, M.SHPDISTRICT as district, M.SHPCOUNTRY as country " +
-        " from  FINDOC F " +
-        "INNER JOIN MTRDOC M ON (M.FINDOC = F.FINDOC) ";
-
-    dsSql = dsSql + dsSqlWhere;
-    dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
-    dsData.FIRST;
-    while (!dsData.EOF()) {
-        if (dsData.NAME == "") {
-            response.success = false;
-            response.error = "No Data";
-        } else {
-            response.success = true;
-            response.data = JSON.parse(dsData.JSON);
-        }
-        return response;
-    }
-    return false;
-
-}
-
-function getOrderItems(id) {
-    if (id == 0 || id == null) return false;
-    // Initialize response array
-    var response = initializeResponse(true);
-
-    // Query Filters
-    dsSqlWhere =
-        " WHERE F.FINDOC = '" + id + "'  ";
-    dsSql = "select  C.CODE as code, F.QTY1 as qty1, F.PRICE as price, F.LINEVAL as total " +
-        " from MTRLINES F " +
-        "INNER JOIN MTRL C on C.MTRL = F.MTRL ";
-
-    dsSql = dsSql + dsSqlWhere;
-    dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
-    dsData.FIRST;
-    while (!dsData.EOF()) {
-        if (dsData.NAME == "") {
-            response.success = false;
-            response.error = "No Data";
-        } else {
-            response.success = true;
-            response.data = JSON.parse(dsData.JSON);
-        }
-        return response;
-    }
-    return false;
-
+    return dsData.ID;
 }
 
 
-function getOrderExp(id) {
-    if (id == 0 || id == null) return false;
+function checkCategoryId(no, id, name) {
     // Initialize response array
     var response = initializeResponse(true);
+    dsSql = " SELECT top 1 ISNULL(UTBL0" + no + ",0) AS ID , NAME FROM UTBL0" + no + " WHERE UTBL0" + no + " = " + id +
+        " AND COMPANY = " + X.SYS.COMPANY + " AND SODTYPE = 51";
 
-    // Query Filters
-    dsSqlWhere =
-        " WHERE FINDOC = '" + id + "'  ";
-    dsSql = "select EXPN as expn, EXPVAL as expval from EXPANAL ";
 
-    dsSql = dsSql + dsSqlWhere;
     dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
-    dsData.FIRST;
-    while (!dsData.EOF()) {
-        if (dsData.NAME == "") {
-            response.success = false;
-            response.error = "No Data";
-        } else {
-            response.success = true;
-            response.data = JSON.parse(dsData.JSON);
+    response.totalcount = dsData.RECORDCOUNT;
+    if (response.totalcount != 0) {
+        dsData.FIRST;
+        if (dsData.name != name) {
+            dsSql = " UPDATE UTBL0" + no + " SET NAME = '" + name + "', CODE = '" + id + "' WHERE UTBL0" + no + " = " + id +
+                " AND COMPANY = " + X.SYS.COMPANY + " AND SODTYPE = 51";
+            dsData = X.RUNSQL(dsSql, null);
         }
-        return response;
+        rows = [];
+    } else {
+        // var objITEM = X.CREATEOBJ("ITEM");
+        // // var tblMTRL = objITEM.FINDTABLE("MTRL");
+        // var tblUTBL = objITEM.FINDTABLE("UTBL0" + no);
+        // objITEM.DBINSERT;
+        // tblUTBL.COMPANY = X.SYS.COMPANY;
+        // tblUTBL.SODTYPE = 51;
+        // tblUTBL.CODE = "";
+        // tblUTBL.NAME = name;
+        // if (no == 1) tblUTBL.UTBL01 = id;
+        // if (no == 2) tblUTBL.UTBL02 = id;
+        // newid = objITEM.DBPOST;
+        dsSql = " INSERT INTO UTBL0" + no + " (COMPANY, SODTYPE, CODE, NAME, UTBL0" + no + ", NUM01, ACNMSK, ISACTIVE, SOHCODE) VALUES (" + X.SYS.COMPANY + ", 51, '" + id + "', '" + name + "', " + id + ", '0', '', 1, '')";
+        dsData = X.RUNSQL(dsSql, null);
+        dsData.ID = dsData;
     }
-    return false;
 
+    return dsData.ID;
 }
+
+// function getOrderBilingInfo(webid) {
+//     if (webid == 0 || webid == null) return false;
+//     // Initialize response array
+//     var response = initializeResponse(true);
+
+//     // Query Filters
+//     dsSqlWhere =
+//         " WHERE F.FINCODE = '" + webid + "'  ";
+//     dsSql = "SELECT C.TRDR as id, C.CODE as code, C.NAME as name, C.ADDRESS as address, C.CITY as city, C.ZIP as zip, C.district as district, C.EMAIL as email, C.PHONE01 as phone1, C.COUNTRY as country, C.AFM as afm, C.IRSDATA as doy " +
+//         "from TRDR C INNER JOIN FINDOC F ON (F.TRDR = C.TRDR)";
+
+//     dsSql = dsSql + dsSqlWhere;
+//     dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
+//     //return dsSql;
+//     //response.data = JSON.parse(dsData.JSON);
+//     dsData.FIRST;
+//     while (!dsData.EOF()) {
+//         if (dsData.NAME == "") {
+//             response.success = false;
+//             response.error = "No Data";
+//         } else {
+//             response.success = true;
+//             response.data = JSON.parse(dsData.JSON);
+//         }
+//         return response;
+//     }
+//     return false;
+
+// }
+
+// function getOrderShipinfo(webid) {
+//     if (webid == 0 || webid == null) return false;
+//     // Initialize response array
+//     var response = initializeResponse(true);
+
+//     // Query Filters
+//     dsSqlWhere =
+//         " WHERE F.FINCODE = '" + webid + "'  ";
+//     dsSql = "SELECT  F.CCCParaliptisName as name, M.SHIPPINGADDR as address, M.SHPCITY as city, M.SHPZIP as zip, M.SHPDISTRICT as district, M.SHPCOUNTRY as country " +
+//         " from  FINDOC F " +
+//         "INNER JOIN MTRDOC M ON (M.FINDOC = F.FINDOC) ";
+
+//     dsSql = dsSql + dsSqlWhere;
+//     dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
+//     dsData.FIRST;
+//     while (!dsData.EOF()) {
+//         if (dsData.NAME == "") {
+//             response.success = false;
+//             response.error = "No Data";
+//         } else {
+//             response.success = true;
+//             response.data = JSON.parse(dsData.JSON);
+//         }
+//         return response;
+//     }
+//     return false;
+
+// }
+
+// function getOrderItems(id) {
+//     if (id == 0 || id == null) return false;
+//     // Initialize response array
+//     var response = initializeResponse(true);
+
+//     // Query Filters
+//     dsSqlWhere =
+//         " WHERE F.FINDOC = '" + id + "'  ";
+//     dsSql = "select  C.CODE as code, F.QTY1 as qty1, F.PRICE as price, F.LINEVAL as total " +
+//         " from MTRLINES F " +
+//         "INNER JOIN MTRL C on C.MTRL = F.MTRL ";
+
+//     dsSql = dsSql + dsSqlWhere;
+//     dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
+//     dsData.FIRST;
+//     while (!dsData.EOF()) {
+//         if (dsData.NAME == "") {
+//             response.success = false;
+//             response.error = "No Data";
+//         } else {
+//             response.success = true;
+//             response.data = JSON.parse(dsData.JSON);
+//         }
+//         return response;
+//     }
+//     return false;
+
+// }
+
+
+// function getOrderExp(id) {
+//     if (id == 0 || id == null) return false;
+//     // Initialize response array
+//     var response = initializeResponse(true);
+
+//     // Query Filters
+//     dsSqlWhere =
+//         " WHERE FINDOC = '" + id + "'  ";
+//     dsSql = "select EXPN as expn, EXPVAL as expval from EXPANAL ";
+
+//     dsSql = dsSql + dsSqlWhere;
+//     dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
+//     dsData.FIRST;
+//     while (!dsData.EOF()) {
+//         if (dsData.NAME == "") {
+//             response.success = false;
+//             response.error = "No Data";
+//         } else {
+//             response.success = true;
+//             response.data = JSON.parse(dsData.JSON);
+//         }
+//         return response;
+//     }
+//     return false;
+
+// }

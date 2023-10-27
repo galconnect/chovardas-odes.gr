@@ -1,4 +1,4 @@
-//// ConnectLineB2BConnector.setDocs
+//// ConnectLineConnector.setDocs
 /// ----------------------------------------------------
 /// LAST UPDATE -> 2023-09-28 12:32 - galex
 /// ----------------------------------------------------
@@ -468,37 +468,30 @@ function setItem(obj) {
             if (itemMtrl.success) ws.key = itemMtrl.mtrl;
             ws.DATA = {};
             ws.DATA.ITEM = [];
-            ws.DATA.ITEEXTRA = [];	//vka -- 08/08/2023
+            ws.DATA.ITEEXTRA = [];
             var itemVal = {};
-            var itemValExtra = {};	//vka -- 08/08/2023
-            // var itemVal = [];
+            var itemValExtra = {};
             itemVal.name = obj.items[i].name;
-            itemVal.CCCCLESHOPNAME = obj.items[i].name;
             itemVal.code = obj.items[i].code;
-            if (itemMtrl.mtrl == 0) { // Αν δεν υπάρχει το είδος
+            if (!itemMtrl.mtrl) { // Αν δεν υπάρχει το είδος
                 itemVal.VAT = obj.items[i].vatcode;
                 itemVal.MTRUNIT1 = obj.items[i].mmcode;
                 if (obj.items[i].mmcodebuy) itemVal.MTRUNIT3 = obj.items[i].mmcodebuy; else itemVal.MTRUNIT3 = obj.items[i].mmcode;
                 if (obj.items[i].mmcodesell) itemVal.MTRUNIT4 = obj.items[i].mmcodesell; else itemVal.MTRUNIT4 = obj.items[i].mmcode;
             }
             if (obj.items[i].mpn) itemVal.CODE2 = obj.items[i].mpn;
-            if (obj.items[i].weight) itemVal.WEIGHT = obj.items[i].weight;
             if (obj.items[i].pricew) itemVal.PRICEW = obj.items[i].pricew;
             if (obj.items[i].regularprice) itemVal.PRICER = obj.items[i].regularprice;
             if (obj.items[i].saleprice) itemVal.PRICER02 = obj.items[i].saleprice;
-            if (obj.items[i].supplierurl) itemVal.CCC1049WebPage = obj.items[i].supplierurl;											//vka -- 08/08/2023
-            if (obj.items[i].availability) itemValExtra.UTBL01 = obj.items[i].availability;												//vka -- 08/08/2023
-            if (obj.items[i].suppliername) itemValExtra.UTBL03 = checkSupplierName(obj.items[i].suppliername);		//vka -- 08/08/2023
-            if (obj.items[i].extsupplier) itemValExtra.UTBL03 = obj.items[i].extsupplier;	// Προμηθευτής Εξωτρικού	
-            itemVal.MTRACN = 101	//vka -- 08/08/2023
-            itemVal.MTRSNUSE = 2 //vka -- 08/08/2023
-            itemVal.APVCODE = obj.items[i].code; //vka -- 08/08/2023
-            if (obj.items[i].category) itemVal.MTRCATEGORY = obj.items[i].category;	//vka -- 08/08/2023
-            if (obj.items[i].barcode) itemVal.CODE1 = obj.items[i].barcode;		//vka -- 08/08/2023
-            if (obj.items[i].purchaseprice) itemVal.CCC1049SUPPRICE = obj.items[i].purchaseprice;	//vka -- 08/08/2023
+            if (obj.items[i].remarks) itemVal.REMARKS = obj.items[i].remarks;
+            if (obj.items[i].availability) itemValExtra.ISACTIVE = obj.items[i].isactive;
+
+            if (obj.items[i].eshopcategoryid01) itemValExtra.UTBL01 = checkCategoryId(1, obj.items[i].eshopcategoryid01, obj.items[i].eshopcategoryname01);
+            if (obj.items[i].eshopcategoryid02) itemValExtra.UTBL02 = checkCategoryId(2, obj.items[i].eshopcategoryid02, obj.items[i].eshopcategoryname02);
+            //if (obj.items[i].extsupplier) itemValExtra.UTBL03 = obj.items[i].extsupplier;	// Προμηθευτής Εξωτρικού	
+
             ws.DATA.ITEM.push((itemVal));
-            ws.DATA.ITEEXTRA.push((itemValExtra));	//vka -- 08/08/2023
-            // X.LOG("updateCustomerData: " + JSON.stringify(ws));
+            ws.DATA.ITEEXTRA.push((itemValExtra));
             var result = X.WEBREQUEST(JSON.stringify(ws));
             res = JSON.parse(result);
             // if (res.success) a.push((res)); else a.push('code: [' + obj.items[i].code + '] - Err: [' + res.error + ']');
@@ -556,5 +549,4 @@ function setItem(obj) {
 
     return response;
 }
-
 // ---------------------------------------------------------------

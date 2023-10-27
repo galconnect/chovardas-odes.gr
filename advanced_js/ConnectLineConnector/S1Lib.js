@@ -5,6 +5,8 @@
 lib.include("ConnectLineConnector.Params");
 lib.include("ConnectLineConnector.common");
 lib.include("ConnectLineConnector.getMasterData");
+lib.include("ConnectLineConnector.getDocs");
+lib.include("ConnectLineConnector.setDocs");
 
 function ApiServices(obj) {
     requestObj = convertKeysToLowerCase(obj);
@@ -17,10 +19,14 @@ function ApiServices(obj) {
         requestObj.upddate = null;
 
         var responseObj = null;
+        // ------- getMasterData -----------
         if (requestObj.service == 'getSalesman')
             responseObj = getSalesman(requestObj)
         else if (requestObj.service == 'getItems')
             responseObj = getItems(requestObj)
+        // ------- setDocs -------------------
+        else if (requestObj.service == 'setItem')
+            responseObj = setItem(requestObj)
         else
             responseObj = responseError("Undefined job!");
 
