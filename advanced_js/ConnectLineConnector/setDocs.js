@@ -1,6 +1,6 @@
 //// ConnectLineConnector.setDocs
 /// ----------------------------------------------------
-/// LAST UPDATE -> 2023-09-28 12:32 - galex
+/// LAST UPDATE -> 2023-10-30 17:01 - galex
 /// ----------------------------------------------------
 lib.include("ConnectLineEshopCommon.common");
 lib.include("ConnectLineB2BConnector.setMasterData");
@@ -473,6 +473,10 @@ function setItem(obj) {
             var itemValExtra = {};
             itemVal.name = obj.items[i].name;
             itemVal.code = obj.items[i].code;
+
+            var catID01 = checkCategoryId(1, obj.items[i].eshopcategoryid01, obj.items[i].eshopcategoryname01);
+            var catID02 = checkCategoryId(2, obj.items[i].eshopcategoryid02, obj.items[i].eshopcategoryname02);
+
             if (!itemMtrl.mtrl) { // Αν δεν υπάρχει το είδος
                 itemVal.VAT = obj.items[i].vatcode;
                 itemVal.MTRUNIT1 = obj.items[i].mmcode;
@@ -484,10 +488,10 @@ function setItem(obj) {
             if (obj.items[i].regularprice) itemVal.PRICER = obj.items[i].regularprice;
             if (obj.items[i].saleprice) itemVal.PRICER02 = obj.items[i].saleprice;
             if (obj.items[i].remarks) itemVal.REMARKS = obj.items[i].remarks;
-            if (obj.items[i].availability) itemValExtra.ISACTIVE = obj.items[i].isactive;
+            if ((obj.items[i].isactive == 1)) itemVal.ISACTIVE = 1; else itemVal.ISACTIVE = 0;
 
-            if (obj.items[i].eshopcategoryid01) itemValExtra.UTBL01 = checkCategoryId(1, obj.items[i].eshopcategoryid01, obj.items[i].eshopcategoryname01);
-            if (obj.items[i].eshopcategoryid02) itemValExtra.UTBL02 = checkCategoryId(2, obj.items[i].eshopcategoryid02, obj.items[i].eshopcategoryname02);
+            if (obj.items[i].eshopcategoryid01) itemValExtra.UTBL01 = catID01;
+            if (obj.items[i].eshopcategoryid02) itemValExtra.UTBL02 = catID02;
             //if (obj.items[i].extsupplier) itemValExtra.UTBL03 = obj.items[i].extsupplier;	// Προμηθευτής Εξωτρικού	
 
             ws.DATA.ITEM.push((itemVal));
@@ -496,6 +500,32 @@ function setItem(obj) {
             res = JSON.parse(result);
             // if (res.success) a.push((res)); else a.push('code: [' + obj.items[i].code + '] - Err: [' + res.error + ']');
             a.push(res);
+            X.UTBL01.REFRESH;
+            X.UTBL02.REFRESH;
+
+            if (!itemMtrl.mtrl) { // Αν δεν υπάρχει το είδος (Καγκουριά)
+                ax = [];
+                var wsOnlyOnAdd = {};
+                wsOnlyOnAdd.SERVICE = "setData";
+                wsOnlyOnAdd.OBJECT = "ITEM";
+                wsOnlyOnAdd.DATA = {};
+                wsOnlyOnAdd.DATA.ITEM = [];
+                wsOnlyOnAdd.DATA.ITEEXTRA = [];
+                var itemMtrl = getItemMtrl(obj.items[i].code);
+                if (itemMtrl.success) wsOnlyOnAdd.key = itemMtrl.mtrl;
+                var itemVal = {};
+                var itemValExtra = {};
+                // itemVal.code = obj.items[i].code;
+                if (obj.items[i].eshopcategoryid01) itemValExtra.UTBL01 = catID01;
+                if (obj.items[i].eshopcategoryid02) itemValExtra.UTBL02 = catID02;
+                wsOnlyOnAdd.DATA.ITEM.push((itemVal));
+                wsOnlyOnAdd.DATA.ITEEXTRA.push((itemValExtra));
+                var resultExtra = X.WEBREQUEST(JSON.stringify(wsOnlyOnAdd));
+                ax.push(resultExtra);
+
+
+            }
+
         }
         response.totalcount = obj.items.length;
         response.data = (a);

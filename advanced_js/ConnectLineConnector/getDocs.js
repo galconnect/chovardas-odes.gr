@@ -1,6 +1,6 @@
 //// ConnectLineConnector.getDocs
 /// -----------------------------------------------
-/// LAST UPDATE -> 2023-09-26 16:57 - galex
+/// LAST UPDATE -> 2023-10-30 15:33 - galex
 /// -----------------------------------------------
 lib.include("ConnectLineEshopCommon.common");
 
@@ -347,11 +347,11 @@ function checkSupplierName(name) {
 function checkCategoryId(no, id, name) {
     // Initialize response array
     var response = initializeResponse(true);
-    dsSql = " SELECT top 1 ISNULL(UTBL0" + no + ",0) AS ID , NAME FROM UTBL0" + no + " WHERE UTBL0" + no + " = " + id +
+    dsSqlQuery = " SELECT top 1 ISNULL(UTBL0" + no + ",0) AS ID , NAME FROM UTBL0" + no + " WHERE UTBL0" + no + " = " + id +
         " AND COMPANY = " + X.SYS.COMPANY + " AND SODTYPE = 51";
 
 
-    dsData = X.GETSQLDATASET(dsSql, X.SYS.COMPANY);
+    dsData = X.GETSQLDATASET(dsSqlQuery, X.SYS.COMPANY);
     response.totalcount = dsData.RECORDCOUNT;
     if (response.totalcount != 0) {
         dsData.FIRST;
@@ -362,20 +362,16 @@ function checkCategoryId(no, id, name) {
         }
         rows = [];
     } else {
-        // var objITEM = X.CREATEOBJ("ITEM");
-        // // var tblMTRL = objITEM.FINDTABLE("MTRL");
-        // var tblUTBL = objITEM.FINDTABLE("UTBL0" + no);
-        // objITEM.DBINSERT;
-        // tblUTBL.COMPANY = X.SYS.COMPANY;
-        // tblUTBL.SODTYPE = 51;
-        // tblUTBL.CODE = "";
-        // tblUTBL.NAME = name;
-        // if (no == 1) tblUTBL.UTBL01 = id;
-        // if (no == 2) tblUTBL.UTBL02 = id;
-        // newid = objITEM.DBPOST;
-        dsSql = " INSERT INTO UTBL0" + no + " (COMPANY, SODTYPE, CODE, NAME, UTBL0" + no + ", NUM01, ACNMSK, ISACTIVE, SOHCODE) VALUES (" + X.SYS.COMPANY + ", 51, '" + id + "', '" + name + "', " + id + ", '0', '', 1, '')";
-        dsData = X.RUNSQL(dsSql, null);
-        dsData.ID = dsData;
+
+        dsSql = " INSERT INTO UTBL0" + no + " (COMPANY, SODTYPE, CODE, NAME, UTBL0" + no + ", NUM01,  ISACTIVE) VALUES (" + X.SYS.COMPANY + ", 51, '" + id + "', '" + name + "', " + id + ", 0, 1)";
+        dsDataSuccess = X.RUNSQL(dsSql, null);
+        if (dsDataSuccess) {
+            dsData = X.GETSQLDATASET(dsSqlQuery, X.SYS.COMPANY);
+            if (response.totalcount != 0) {
+                dsData.FIRST;
+                dsData.ID = dsData;
+            }
+        }
     }
 
     return dsData.ID;
