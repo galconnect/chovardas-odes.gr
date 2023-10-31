@@ -1,6 +1,6 @@
 //// ConnectLineConnector.setDocs
 /// ----------------------------------------------------
-/// LAST UPDATE -> 2023-10-30 17:01 - galex
+/// LAST UPDATE -> 2023-10-31 13:35 - galex
 /// ----------------------------------------------------
 lib.include("ConnectLineEshopCommon.common");
 lib.include("ConnectLineB2BConnector.setMasterData");
@@ -38,12 +38,7 @@ function setOrder(obj) {
         tblFINDOC.EDIT;
 
         var siteId = '';
-        if (obj.series == 6023 || obj.series == 6021)
-            siteId = 'BeQ'
-        else if (obj.series == 7023 || obj.series == 7021)
-            siteId = 'Ekos'
-        else if (obj.series == 8023 || obj.series == 8021)
-            siteId = 'Zoro'
+
 
 
         // tblFINDOC.SERIES = getSeries(obj);
@@ -490,6 +485,8 @@ function setItem(obj) {
             if (obj.items[i].remarks) itemVal.REMARKS = obj.items[i].remarks;
             if ((obj.items[i].isactive == 1)) itemVal.ISACTIVE = 1; else itemVal.ISACTIVE = 0;
 
+            X.UTBL01.REFRESH;
+            X.UTBL02.REFRESH;
             if (obj.items[i].eshopcategoryid01) itemValExtra.UTBL01 = catID01;
             if (obj.items[i].eshopcategoryid02) itemValExtra.UTBL02 = catID02;
             //if (obj.items[i].extsupplier) itemValExtra.UTBL03 = obj.items[i].extsupplier;	// Προμηθευτής Εξωτρικού	
@@ -500,8 +497,6 @@ function setItem(obj) {
             res = JSON.parse(result);
             // if (res.success) a.push((res)); else a.push('code: [' + obj.items[i].code + '] - Err: [' + res.error + ']');
             a.push(res);
-            X.UTBL01.REFRESH;
-            X.UTBL02.REFRESH;
 
             if (!itemMtrl.mtrl) { // Αν δεν υπάρχει το είδος (Καγκουριά)
                 ax = [];
