@@ -1,6 +1,6 @@
 //// ConnectLineConnector.getMasterData
 /// -----------------------------------------------
-/// LAST UPDATE -> 2023-10-26 17:58 - galex
+/// LAST UPDATE -> 2023-11-03 15:18 - galex
 /// -----------------------------------------------
 
 lib.include("ConnectLineConnector.common");
@@ -53,7 +53,7 @@ function getItems(obj) {
     dsSql = "SELECT A.MTRL AS ITEMID, A.CODE AS SKU, U.NAME AS UNIT, A.VAT AS VATID, V.NAME AS VAT, A.UPDDATE AS UPDDATE, " +
         " A.NAME AS NAME, " +
         " B01.UTBL01 AS CATEGORY01CODE, B01.NAME AS CATEGORY01NAME, B02.UTBL02 AS CATEGORY02CODE, B02.NAME AS CATEGORY02NAME,  " +
-        " ISNULL(A.CODE1,0) AS BARCODE, A.ISACTIVE, C.VARCHAR03 AS MPN, A.CODE2 AS FCODE, " +
+        " ISNULL(A.CODE1,0) AS BARCODE, A.ISACTIVE, C.VARCHAR03 AS  FCODE, A.CODE2 AS MPN, " +
         " ISNULL(A.PRICEW, 0) AS PRICE, ISNULL(A.PRICER, 0) AS LIANIKI, ISNULL(A.SODISCOUNT, 0) AS EKPTOSILIANIKIS,  ISNULL(A.GWEIGHT, 0) AS WEIGHT, A.MTRMANFCTR AS BRANDID, " +
         " convert(varchar, getdate(), 20) AS SQLDATE " +
         " , M.NAME AS BRAND " +
@@ -101,7 +101,7 @@ function getItems(obj) {
             "CODE": dsData.SKU,
             "NAME": dsData.NAME,
             "MPN": dsData.MPN,
-            "FCODE": dsData.FCODE,
+            // "FCODE": dsData.FCODE,
             // "BARCODE": dsData.BARCODE,
             // "PRICE": dsData.PRICE,
             "PRICER": dsData.LIANIKI,
